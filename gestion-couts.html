@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Coûts - L2 Éco-Fi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des Coûts</h1>
+        <div class="content">
+            <h2>QCM - Gestion des Coûts</h2>
+            <div class="progress-bar">
+                <div class="progress" style="width: 0%"></div>
+            </div>
+            <div id="score" style="text-align: right; margin-bottom: 1rem;">Score: <span>0</span>/22</div>
+            <div id="quiz"></div>
+            <div class="navigation">
+                <button onclick="window.location.href='index.html'" class="course-button">
+                    Retour à l'accueil
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="quiz-questions.js"></script>
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+        const quizContainer = document.getElementById('quiz');
+        const scoreElement = document.querySelector('#score span');
+
+        function showQuestion(index) {
+            const question = questions[index];
+            const questionHTML = `
+                <div class="question">
+                    <h3>${index + 1}. ${question.question}</h3>
+                    <div class="options">
+                        ${question.options.map((option, i) => `
+                            <div class="option" onclick="checkAnswer(${i})">${option}</div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation">${question.explanation}</div>
+                </div>
+            `;
+            quizContainer.innerHTML = questionHTML;
+            updateProgress();
+        }
+
+        function checkAnswer(selectedIndex) {
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const explanation = document.querySelector('.explanation');
+            
+            options.forEach(option => option.style.pointerEvents = 'none');
+            
+            if (selectedIndex === question.correct) {
+                options[selectedIndex].classList.add('correct');
+                score++;
+                scoreElement.textContent = score;
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+            }
+            
+            explanation.classList.add('show');
+            
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    showQuestion(currentQuestion);
+                } else {
+                    showFinalScore();
+                }
+            }, 3000);
+        }
+
+        function showFinalScore() {
+            const percentage = (score / questions.length) * 100;
+            quizContainer.innerHTML = `
+                <div class="question">
+                    <h3>Quiz terminé !</h3>
+                    <p>Votre score final : ${score}/${questions.length} (${percentage}%)</p>
+                    <button onclick="restartQuiz()" class="course-button">Recommencer le quiz</button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            scoreElement.textContent = '0';
+            showQuestion(0);
+        }
+
+        function updateProgress() {
+            const progress = document.querySelector('.progress');
+            const percentage = ((currentQuestion + 1) / questions.length) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        // Démarrer le quiz
+        showQuestion(0);
+    </script>
+</body>
+</html> 
